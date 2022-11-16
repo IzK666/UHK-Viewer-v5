@@ -1,0 +1,291 @@
+<html>
+	<head>
+		<script src="jquery-3.5.1.min.js"></script>
+		<script src="const.js"></script>
+		<script src="uhk.js"></script>
+		<script src="Sortable.js"></script>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<link rel="icon" type="image/x-icon" href="favicon.ico">
+		<title>UHK Layer cloning</title>
+	</head>
+	<body>
+		<div id="sideMenu" class="sidenav">
+			<a class="sidetitle">Tools</a>
+			<a href="#" data-menu="divConfig" class="sideselected">Configuration</a>
+			<a class="sidetitle" id="mk"><img id="addKeymap" src="new.png" class="hide plus">Keymaps</a>
+			<a class="sidetitle" id="mm"><img id="addMacro" src="new.png" class="hide plus">Macros</a>
+		</div>
+
+		<div id="divConfig" class="element">
+			<table id="tConfig">
+				<tr>
+					<td><h2>Load configuration</h2></td>
+					<td><h2>Save configuration</h2></td>
+				</tr>
+				<tr>
+					<td><label for="cfgUp" class="button">Upload</label><input type="file" id="cfgUp" accept=".json"></td>
+					<td><input type="button" id="cfgDown" class="button" value="Download" disabled></td>
+				</tr>
+				<tr>
+					<td id="loaded"></td>
+				</tr>
+			</table>
+			<br><br><br><br><br><br>
+			<div>
+				Remember that there might be some issues.<br>
+				Please, keep a backup of your original configuration!
+			</div>
+		</div>
+			
+		<div id="divMerge" class="hide element">
+			<h1></h1>
+			<h2>Merge configuration</h2>
+
+			<div>
+				<label for="mergeFile" class="button">Select file to merge</label><input type="file" id="mergeFile" accept=".json"><br><br><span id="mergedFile"></span>
+			</div>
+
+			<div id="divMergeContent" class="hide">
+				<div id="divMergeKeymaps" class="iconleft">
+					<input id='mergeKeymap' class="checkbox" type='checkbox' checked=true><label for='mergeKeymap'>Import keymaps</label>
+				</div>
+
+				<div id="divMergeMacros" class="iconright">
+					<input id='mergeMacro' class="checkbox" type='checkbox' checked=true><label for='mergeMacro'>Import macros</label>
+				</div>
+			</div>
+			<div id="divPrefix" class="hide">
+				Prefix:
+				<input type="text" id="mergePrefix" placeholder="Set a prefix for imported keymaps/macros (optional)">
+			</div>
+			<div class="hide">
+				<input id="mergeRun" type="button" value="Merge" class="button">
+			</div>
+		</div>
+
+		<div id="divKeymap" class="hide element">
+			<h1></h1>
+			<div id="keymapTitle">
+				<input type="text" id="kmName" placeholder="Name of the keymap">
+				(
+				<input type="text" id="kmAbbr" placeholder="Abbreviation" maxlength="3">
+				)
+				<img id="keymapRemove" src="removeBlack.png" class="keymapicons">
+				<img id="keymapCopy" src="copyBlack.png" class="keymapicons">
+			</div>
+			<form class="form cf">
+				<section class="layer cf">
+					<input type="radio" id="layer0" name="layer" value="0" checked><label class="radio" for="layer0">Base</label>
+					<input type="radio" id="layer1" name="layer" value="1"><label class="radio" for="layer1">Mod</label>
+					<input type="radio" id="layer2" name="layer" value="2"><label class="radio" for="layer2">Fn</label>
+					<input type="radio" id="layer3" name="layer" value="3"><label class="radio" for="layer3">Mouse</label>
+				</section>
+			</form>
+			<div id="keyDivOptionsL" data-side="left" style="left: 250px;">
+				<div class="clear iconleft"><img src="remove.png" style="width: 100%;"></div><div class="copy iconright"><img src="copy.png" style="width: 100%;"></div><div class="paste iconright"><img src="paste.png" style="width: 100%;"></div><br><span id="clipleftK"></span><span id="clipleftL"></span>
+				<input type="text" id="copyleftKeymap" class="hide"><input type="text" id="copyleftLayer" class="hide">
+			</div>
+			<div id="keyDivOptionsR" data-side="right" style="left: 820px;">
+				<div class="clear iconright"><img src="remove.png" style="width: 100%;"></div><div class="copy iconleft"><img src="copy.png" style="width: 100%;"></div><div class="paste iconleft"><img src="paste.png" style="width: 100%;"></div><br><span id="cliprightL"></span><span id="cliprightK"></span>
+				<input type="text" id="copyrightKeymap" class="hide"><input type="text" id="copyrightLayer" class="hide">
+			</div>
+			<div class="keyboard">
+				<div id="lKey0" class="key key4"></div>
+				<div id="lKey1" class="key key4"></div>
+				<div id="lKey2" class="key key4"></div>
+				<div id="lKey3" class="key key4"></div>
+				<div id="lKey4" class="key key4"></div>
+				<div id="lKey5" class="key key4"></div>
+				<div id="lKey6" class="key key4"></div>
+				<div class="nokey"></div>
+				<div id="rKey0" class="key key4"></div>
+				<div id="rKey1" class="key key4"></div>
+				<div id="rKey2" class="key key4"></div>
+				<div id="rKey3" class="key key4"></div>
+				<div id="rKey4" class="key key4"></div>
+				<div id="rKey5" class="key key4"></div>
+				<div id="rKey6" class="key key6"></div>
+				<div id="lKey7" class="key key6"></div>
+				<div id="lKey8" class="key key4"></div>
+				<div id="lKey9" class="key key4"></div>
+				<div id="lKey10" class="key key4"></div>
+				<div id="lKey11" class="key key4"></div>
+				<div id="lKey13" class="key key4"></div>
+				<div class="nokey"></div>
+				<div id="rKey14" class="key key4"></div>
+				<div id="rKey7" class="key key4"></div>
+				<div id="rKey8" class="key key4"></div>
+				<div id="rKey9" class="key key4"></div>
+				<div id="rKey10" class="key key4"></div>
+				<div id="rKey11" class="key key4"></div>
+				<div id="rKey12" class="key key4"></div>
+				<div id="rKey13" class="key key4"></div>
+				<div id="lKey14" class="key key7"></div>
+				<div id="lKey15" class="key key4"></div>
+				<div id="lKey16" class="key key4"></div>
+				<div id="lKey17" class="key key4"></div>
+				<div id="lKey18" class="key key4"></div>
+				<div id="lKey20" class="key key4"></div>
+				<div class="nokey"></div>
+				<div id="rKey21" class="key key4"></div>
+				<div id="rKey15" class="key key4"></div>
+				<div id="rKey16" class="key key4"></div>
+				<div id="rKey17" class="key key4"></div>
+				<div id="rKey18" class="key key4"></div>
+				<div id="rKey19" class="key key4"></div>
+				<div id="rKey20" class="key key7"></div>
+				<div id="lKey21" class="key key5"></div>
+				<div id="lKey22" class="key key4"></div>
+				<div id="lKey23" class="key key4"></div>
+				<div id="lKey24" class="key key4"></div>
+				<div id="lKey25" class="key key4"></div>
+				<div id="lKey26" class="key key4"></div>
+				<div id="lKey27" class="key key4"></div>
+				<div class="nokey"></div>
+				<div id="rKey22" class="key key4"></div>
+				<div id="rKey23" class="key key4"></div>
+				<div id="rKey24" class="key key4"></div>
+				<div id="rKey25" class="key key4"></div>
+				<div id="rKey26" class="key key4"></div>
+				<div id="rKey27" class="key key9"></div>
+				<div id="lKey28" class="key key5"></div>
+				<div id="lKey29" class="key key5"></div>
+				<div id="lKey30" class="key key5"></div>
+				<div id="lKey31" class="key key5"></div>
+				<div id="lKey33" class="key key7"></div>
+				<div class="nokey"></div>
+				<div id="rKey29" class="key key7"></div>
+				<div id="rKey31" class="key key5"></div>
+				<div id="rKey32" class="key key5"></div>
+				<div id="rKey33" class="key key5"></div>
+				<div id="rKey34" class="key key9"></div>
+				<div class="nokey"></div>
+				<div class="nokey"></div>
+				<div class="nokey"></div>
+				<div class="nokey"></div>
+				<div id="lKey32" class="key kmod"></div>
+				<div class="nokey"></div>
+				<div id="rKey30" class="key kmod"></div>
+			</div>
+			<div class="note">
+				<p>Notes</p>
+				<ul>
+					<li>If you copy from the base layer to a different layer, reassign the not related mod/fn/mouse keys in agent, as they won't work on other layers.</li>
+					<li>Module keys are copy/pasted, but don't get cleared.</li>
+				</ul>
+			</div>
+		</div>
+
+		<div id="keyboardGlow" class="hide element">
+		</div>
+
+ 		<div id="divMacro" class="hide element">
+			<h1></h1>
+			<div id="macroTitle">
+				<input type="text" id="macName" placeholder="Name of the keymap">
+				<img id="macroRemove" src="removeBlack.png" class="keymapicons">
+				<img id="macroCopy" src="copyBlack.png" class="keymapicons">
+			</div>
+			<div id="dmacro">
+				<table id="tmacro">
+					<tbody id="tmacroBody">
+					<tr>
+					</tr>
+					</tbody>
+				</table>
+				<div class="add-line">
+					<span class="add-line_btn">+</span>
+				</div>
+			</div>
+		</div>
+
+		<div id="divEditor" class="hide">
+			<div id="box"/>
+				<div id='contentEditor'>
+					<textarea id='txtEditor'></textarea>
+					<br>
+					<input id='chkSplit' type='checkbox'>
+					<label for='chkSplit'>Macro mode (each line will be splitted in different entries)</label>
+					<div id='buttons'>
+						<input id="macroSave" type="button" value="SAVE"><input id="macroCancel" type="button" value="CANCEL">
+					</div>
+					<input type='text' class='hide' id='line1'>
+					<input type='text' class='hide' id='line2'>
+				</div>
+			</div>
+			<div class="minikb">
+				<div id="lKey0" class="minikey key4" data-A="`" data-B="~ `" data-ALT="graveAccentAndTilde">`</div>
+				<div id="lKey1" class="minikey key4" data-A="1" data-B="! 1">1</div>
+				<div id="lKey2" class="minikey key4" data-A="2" data-B="@ 2">2</div>
+				<div id="lKey3" class="minikey key4" data-A="3" data-B="# 3">3</div>
+				<div id="lKey4" class="minikey key4" data-A="4" data-B="$ 4">4</div>
+				<div id="lKey5" class="minikey key4" data-A="5" data-B="% 5">5</div>
+				<div id="lKey6" class="minikey key4" data-A="6" data-B="^ 6">6</div>
+				<div class="nokey"></div>
+				<div id="rKey0" class="minikey key4" data-A="7" data-B="& 7">7</div>
+				<div id="rKey1" class="minikey key4" data-A="8" data-B="* 8">8</div>
+				<div id="rKey2" class="minikey key4" data-A="9" data-B="( 9">9</div>
+				<div id="rKey3" class="minikey key4" data-A="0" data-B=") 0">0</div>
+				<div id="rKey4" class="minikey key4" data-A="-" data-B="_ -" data-ALT="minusAndUnderscore">-</div>
+				<div id="rKey5" class="minikey key4" data-A="=" data-B="+ =" data-ALT="equalAndPlus">=</div>
+				<div id="rKey6" class="minikey key6"></div>
+				<div id="lKey7" class="minikey key6"></div>
+				<div id="lKey8" class="minikey key4">Q</div>
+				<div id="lKey9" class="minikey key4">W</div>
+				<div id="lKey10" class="minikey key4">E</div>
+				<div id="lKey11" class="minikey key4">R</div>
+				<div id="lKey13" class="minikey key4">T</div>
+				<div class="nokey"></div>
+				<div id="rKey14" class="minikey key4">Y</div>
+				<div id="rKey7" class="minikey key4">U</div>
+				<div id="rKey8" class="minikey key4">I</div>
+				<div id="rKey9" class="minikey key4">O</div>
+				<div id="rKey10" class="minikey key4">P</div>
+				<div id="rKey11" class="minikey key4" data-A="[" data-B="{ [" data-ALT="openingBracketAndOpeningBrace">[</div>
+				<div id="rKey12" class="minikey key4" data-A="]" data-B="} ]" data-ALT="closingBracketAndClosingBrace">]</div>
+				<div id="rKey13" class="minikey key4" data-A="\" data-B="| \" data-ALT="backslashAndPipe">\</div>
+				<div id="lKey14" class="minikey key7"></div>
+				<div id="lKey15" class="minikey key4">A</div>
+				<div id="lKey16" class="minikey key4">S</div>
+				<div id="lKey17" class="minikey key4">D</div>
+				<div id="lKey18" class="minikey key4">F</div>
+				<div id="lKey20" class="minikey key4">G</div>
+				<div class="nokey"></div>
+				<div id="rKey21" class="minikey key4">H</div>
+				<div id="rKey15" class="minikey key4">J</div>
+				<div id="rKey16" class="minikey key4">K</div>
+				<div id="rKey17" class="minikey key4">L</div>
+				<div id="rKey18" class="minikey key4" data-A=";" data-B=": ;" data-ALT="semicolonAndColon">;</div>
+				<div id="rKey19" class="minikey key4" data-A="'" data-B="&quot '" data-ALT="apostropheAndQuote">'</div>
+				<div id="rKey20" class="minikey key7"></div>
+				<div id="lKey21" class="minikey key5"></div>
+				<div id="lKey22" class="minikey key4" data-ALT="backslashAndPipeIso">ISO</div>
+				<div id="lKey23" class="minikey key4">Z</div>
+				<div id="lKey24" class="minikey key4">X</div>
+				<div id="lKey25" class="minikey key4">C</div>
+				<div id="lKey26" class="minikey key4">V</div>
+				<div id="lKey27" class="minikey key4">B</div>
+				<div class="nokey"></div>
+				<div id="rKey22" class="minikey key4">N</div>
+				<div id="rKey23" class="minikey key4">M</div>
+				<div id="rKey24" class="minikey key4" data-A="," data-B="< ," data-ALT="commaAndLessThanSign">,</div>
+				<div id="rKey25" class="minikey key4" data-A="." data-B="> ." data-ALT="dotAndGreaterThanSign">.</div>
+				<div id="rKey26" class="minikey key4" data-A="/" data-B="? /" data-ALT="slashAndQuestionMark">/</div>
+				<div id="rKey27" class="minikey key9"></div>
+				<div id="lKey28" class="minikey key5"></div>
+				<div id="lKey29" class="minikey key5"></div>
+				<div id="lKey30" class="minikey key5"></div>
+				<div id="lKey31" class="minikey key5"></div>
+				<div id="lKey33" class="minikey key7"></div>
+				<div class="nokey"></div>
+				<div id="rKey29" class="minikey key7"></div>
+				<div id="rKey31" class="minikey key5"></div>
+				<div id="rKey32" class="minikey key5"></div>
+				<div id="rKey33" class="minikey key5"></div>
+				<div id="rKey34" class="minikey key9"></div>
+				<div id="ALTtext" class="keyLINE"></div>
+				<!--input id="ALTtext" type="text" class="keyLINE" readonly disabled-->
+			</div>
+		</div>
+	</body>
+</html>
