@@ -6,7 +6,7 @@
 		<script src="Sortable.js"></script>
 		<link rel="stylesheet" type="text/css" href="style.css">
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
-		<title>UHK Layer cloning</title>
+		<title>UHK Viewer</title>
 	</head>
 	<body>
 		<div id="sideMenu" class="sidenav">
@@ -30,16 +30,12 @@
 					<td id="loaded"></td>
 				</tr>
 			</table>
-			<br><br><br><br><br><br>
-			<div>
-				Remember that there might be some issues.<br>
-				Please, keep a backup of your original configuration!
-			</div>
 		</div>
 			
 		<div id="divMerge" class="hide element">
 			<h1></h1>
 			<h2>Merge configuration</h2>
+			<h3>Import keymaps and/or macros from other files</h3>
 
 			<div>
 				<label for="mergeFile" class="button">Select file to merge</label><input type="file" id="mergeFile" accept=".json"><br><br><span id="mergedFile"></span>
@@ -74,11 +70,8 @@
 				<img id="keymapCopy" src="copyBlack.png" class="keymapicons">
 			</div>
 			<form class="form cf">
-				<section class="layer cf">
-					<input type="radio" id="layer0" name="layer" value="0" checked><label class="radio" for="layer0">Base</label>
-					<input type="radio" id="layer1" name="layer" value="1"><label class="radio" for="layer1">Mod</label>
-					<input type="radio" id="layer2" name="layer" value="2"><label class="radio" for="layer2">Fn</label>
-					<input type="radio" id="layer3" name="layer" value="3"><label class="radio" for="layer3">Mouse</label>
+				<section id="layers" class="layer cf">
+					<input type="radio" id="layer0" name="layer" value="0"><label class="radio" for="layer0">Base</label>
 				</section>
 			</form>
 			<div id="keyDivOptionsL" data-side="left" style="left: 250px;">
@@ -184,7 +177,7 @@
 			<div id="macroTitle">
 				<input type="text" id="macName" placeholder="Name of the keymap">
 				<img id="macroRemove" src="removeBlack.png" class="keymapicons">
-				<img id="macroCopy" src="copyBlack.png" class="keymapicons">
+				<!--img id="macroCopy" src="copyBlack.png" class="keymapicons"-->
 			</div>
 			<div id="dmacro">
 				<table id="tmacro">
@@ -193,9 +186,9 @@
 					</tr>
 					</tbody>
 				</table>
-				<div class="add-line">
+				<!--div class="add-line">
 					<span class="add-line_btn">+</span>
-				</div>
+				</div-->
 			</div>
 		</div>
 

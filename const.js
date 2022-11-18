@@ -145,4 +145,4 @@ var Karel = ["delayUntilRelease","delayUntil","delayUntilReleaseMax","switchKeym
 var KarelDeprecated = ["switchLayer","switchKeymapLayer","resolveNextKeyEq"];
 var KarelCond= ["ifShortcut","ifNotShortcut","ifGesture","ifNotGesture","ifPrimary","ifSecondary","ifDoubletap","ifNotDoubletap","ifInterrupted","ifNotInterrupted","ifReleased","ifNotReleased","ifKeyActive","ifNotKeyActive","ifKeyDefined","ifNotKeyDefined","ifKeyPendingAt","ifNotKeyPendingAt","ifPending","ifNotPending","ifPendingKeyReleased","ifNotPendingKeyReleased","ifPlaytime","ifNotPlaytime","ifShift","ifAlt","ifCtrl","ifGui","ifAnyMod","ifNotShift","ifNotAlt","ifNotCtrl","ifNotGui","ifNotAnyMod","ifRegEq","ifNotRegEq","ifRecording","ifNotRecording","ifRecordingId","ifNotRecordingId"];
 var KarelMod = ["sticky","suppressMods","suppressKeys","postponeKeys","final","fn","mouse","mod","base","last","previous","noConsume","transitive","anyOrder","timeoutIn","cancelIn"];
-var layers = ["Base","Mod","Fn","Mouse"];
+var layers = ["base","mod","fn","mouse","fn2","fn3","fn4","fn5","shift","control","alt","super"];
