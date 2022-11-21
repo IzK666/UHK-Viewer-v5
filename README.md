@@ -34,3 +34,4 @@ Nevertheless, the main reason to create a fork of my original project is to keep
 	- View macros
 	- Rename macros. *It will modify any keymap switch from keys, as well from macros.*
 	- Delete macros. *It will remove any keymap switch from keys and comment macro calls.*
+	

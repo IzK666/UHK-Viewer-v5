@@ -264,48 +264,6 @@ $( document ).ready(function() {
 		$("#layerModify").click(layerModify);
 	}
 
-	function hideLayerSelectorMenu() {
-		$("#layerSelector").fadeOut(300, function(){$(this).remove()});
-		$("body").off("click");
-		$("#layerModify").off();
-	}
-
-	function layerModify() {
-		// Add and remove layers according to your selection
-		let currentKeymap = $(".sideselected").attr("data-index");
-		let currentLayer = jsondata.keymaps[currentKeymap].layers[$("input[name='layer']:checked").val()].id;
-		let kmax = jsondata.keymaps[currentKeymap].layers.length;
-		let k = 1;
-		let showBase = false;
-		for (let i=1; i<layers.length; i++) {
-			if (k<kmax && jsondata.keymaps[currentKeymap].layers[k].id == layers[i]) {
-				if (!$("#" + layers[i]).prop("checked")) {
-					// Layer deselected
-					jsondata.keymaps[currentKeymap].layers.splice(k, 1);
-					if (currentLayer == layers[i]) showBase = true;
-					kmax--;
-				} else {
-					k++;
-				}
-			} else {
-				if ($("#" + layers[i]).prop("checked")) {
-					// Add new layer
-					jsondata.keymaps[currentKeymap].layers.splice(k, 0, createBlankLayer(layers[i]));
-					k++;kmax++;
-				}
-			}
-		}
-		viewKeymapLayers(currentKeymap);
-		hideLayerSelectorMenu();
-		if (showBase)
-			viewKeymap(currentKeymap);
-		else if (currentLayer != "base")
-			for (let i=1; i<jsondata.keymaps[currentKeymap].layers.length; i++)
-				if (jsondata.keymaps[currentKeymap].layers[i].id == currentLayer) {
-					$("#layer" + i).prop("checked", true);i=99999;
-				}
-	}
-
 
 	/************************************/
 
@@ -508,13 +466,12 @@ $( document ).ready(function() {
 										jsondata.keymaps[i].layers[j].modules[k].keyActions[l]= null;
 
 			// Remove any calls to this keymap (from macros)
-			let re1 = new RegExp("^(.*switchKeymap " + escapeName(keymapAbbr) + "($| .*$))","gm");
-			let re2 = new RegExp("^(.*(toggleKeymapLayer|holdKeymapLayer|holdKeymapLayerMax|switchKeymapLayer) " + escapeName(keymapAbbr) + " (" + layers.map(e => escapeName(e)).join("|") + ")($| .*$))","gm");
+			let re1 = new RegExp("^((?!#|\/\/).*switchKeymap " + escapeName(keymapAbbr) + "($| .*$))","gm");
+			let re2 = new RegExp("^((?!#|\/\/).*(toggleKeymapLayer|holdKeymapLayer|holdKeymapLayerMax|switchKeymapLayer) " + escapeName(keymapAbbr) + " (" + layers.map(e => escapeName(e)).join("|") + ")($| .*$))","gm");
 			for (let i=0; i<jsondata.macros.length; i++)
 				for (let j=0; j<jsondata.macros[i].macroActions.length; j++)
 					if (jsondata.macros[i].macroActions[j].macroActionType == "command")
-						if (jsondata.macros[i].macroActions[j].command.search(escapeName(keymapAbbr)) > 0)
-							jsondata.macros[i].macroActions[j].command = jsondata.macros[i].macroActions[j].command.replace(re1, "#$1").replace(re2, "#$1");
+						jsondata.macros[i].macroActions[j].command = jsondata.macros[i].macroActions[j].command.replace(re1, "#$1").replace(re2, "#$1");
 
 			loadKeymaps();
 			$('.sidenav a:nth-child('+(1+$('#mk').index()+1+getDefaultKeymap())+')').trigger("click");
@@ -550,6 +507,68 @@ $( document ).ready(function() {
 			if (layers[i] == layername)
 				return i;
 	}
+
+
+	function hideLayerSelectorMenu() {
+		$("#layerSelector").fadeOut(300, function(){$(this).remove()});
+		$("body").off("click");
+		$("#layerModify").off();
+	}
+
+	function layerModify() {
+		// Add and remove layers according to your selection
+		let currentKeymap = $(".sideselected").attr("data-index");
+		let currentLayer = jsondata.keymaps[currentKeymap].layers[$("input[name='layer']:checked").val()].id;
+		let kmax = jsondata.keymaps[currentKeymap].layers.length;
+		let k = 1;
+		let showBase = false;
+		for (let i=1; i<layers.length; i++) {
+			if (k<kmax && jsondata.keymaps[currentKeymap].layers[k].id == layers[i]) {
+				if (!$("#" + layers[i]).prop("checked")) {
+					// Remove layer deselected
+					jsondata.keymaps[currentKeymap].layers.splice(k, 1);
+					if (currentLayer == layers[i]) showBase = true;
+					kmax--;
+					// Fix keymap calls. Only apply on currentKeymap
+					for (let j=0; j< jsondata.keymaps[currentKeymap].layers.length; j++)
+						for (let k=0; k<jsondata.keymaps[currentKeymap].layers[j].modules.length; k++) // Can be removed. switchLayer is only available on base layer
+							for (let l=0; l<jsondata.keymaps[currentKeymap].layers[j].modules[k].keyActions.length; l++)
+								if (jsondata.keymaps[currentKeymap].layers[j].modules[k].keyActions[l]) // True if keyAction is not null
+									if (jsondata.keymaps[currentKeymap].layers[j].modules[k].keyActions[l].keyActionType == "switchLayer")
+										if (jsondata.keymaps[currentKeymap].layers[j].modules[k].keyActions[l].layer == layers[i])
+											jsondata.keymaps[currentKeymap].layers[j].modules[k].keyActions[l] = null;
+
+					//let re1 = new RegExp("^((?!#|\/\/).*(holdLayer|toggleLayer|untoggleLayer|holdLayer|switchLayer|activateKeyPostponed atLayer) " + layers[i] + "($| .*$))","gm");
+					//let re2 = new RegExp("^((?!#|\/\/).*(set module\.(trackball|touchpad|trackpoint|keycluster)\.navigationMode\.|set keymapAction\.)" + layers[i] + "($| .*$))","gm");
+					let re3 = new RegExp("^((?!#|\/\/).*(toggleKeymapLayer|holdKeymapLayer|holdKeymapLayerMax|switchKeymapLayer) " + escapeName(jsondata.keymaps[currentKeymap].abbreviation) + " (" + layers[i] + ")($| .*$))","gm");
+					for (let i=0; i<jsondata.macros.length; i++)
+						for (let j=0; j<jsondata.macros[i].macroActions.length; j++)
+							if (jsondata.macros[i].macroActions[j].macroActionType == "command")
+								jsondata.macros[i].macroActions[j].command = jsondata.macros[i].macroActions[j].command.replace(re3, "#$1");
+
+
+				} else {
+					k++;
+				}
+			} else {
+				if ($("#" + layers[i]).prop("checked")) {
+					// Add new layer
+					jsondata.keymaps[currentKeymap].layers.splice(k, 0, createBlankLayer(layers[i]));
+					k++;kmax++;
+				}
+			}
+		}
+		viewKeymapLayers(currentKeymap);
+		hideLayerSelectorMenu();
+		if (showBase)
+			viewKeymap(currentKeymap);
+		else if (currentLayer != "base")
+			for (let i=1; i<jsondata.keymaps[currentKeymap].layers.length; i++)
+				if (jsondata.keymaps[currentKeymap].layers[i].id == currentLayer) {
+					$("#layer" + i).prop("checked", true);i=99999;
+				}
+	}
+
 
 	/************************************/
 
@@ -722,7 +741,7 @@ $( document ).ready(function() {
 					value = value.slice(0, -3);
 				$('#tmacro').append("<tr><td></td><td>" + capitalize(jsondata.macros[macro].macroActions[i].action) + " button</td><td class='macroCommand'>" + value + "</td><td></td></tr>");
 			} else if (action == "command") {
-				$('#tmacro').append("<tr><td></td><td>Command</td><td class='macroCommand'>" + KarelSyntax(jsondata.macros[macro].macroActions[i].command) + "</td><td></td></tr>");
+				$('#tmacro').append("<tr><td></td><td>Command</td><td class='macroCommand'>" + KarelSyntax(jsondata.macros[macro].macroActions[i].command.replace(/\r\n/g, "<br>")) + "</td><td></td></tr>");
 			} else
 				$('#tmacro').append("<tr><td></td><td colspan='2' class='unknownCommand'>Unknown type: " + jsondata.macros[macro].macroActions[i].macroActionType + "</td><td></td></tr>");
 		}
@@ -889,10 +908,7 @@ $( document ).ready(function() {
 
 	function addMacro() {
 		let a = getMacroName("New macro");
-		createMacro(a);
-		let macroID = 0;
-		while (jsondata.macros[macroID].name != a)
-			macroID++;
+		macroID = createMacro(a);
 		$('.sidenav a:nth-child('+(1+$('#mm').index()+macroID+1)+')').trigger('click');
 
 		// Replace keymap appeareances
@@ -901,15 +917,14 @@ $( document ).ready(function() {
 				for (let k=0; k<jsondata.keymaps[i].layers[j].modules.length; k++)
 					for (let l=0; l<jsondata.keymaps[i].layers[j].modules[k].keyActions.length; l++)
 						if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l]) //can be null
-							if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l].keyActionType == "playMacro") {
-								let value = jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex;
-								if (value >= macroID)
-									jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex = value+1;
-							}
+							if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l].keyActionType == "playMacro")
+								if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex >= macroID)
+									jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex++;
 	}
 
 	function createMacro(aname, glow=true) {
 		// Create a new empty macro
+		// Return macro index
 		let macro;
 		macro = {isLooped: false, isPrivate: true, name: aname, macroActions: []};
 
@@ -921,6 +936,7 @@ $( document ).ready(function() {
 		loadMacros();
 		if (glow)
 			$('.sidenav a:nth-child('+(1+$('#mm').index()+index+1)+')').addClass("glow");
+		return index;
 	}
 
 	function getMacroName(name) {
@@ -989,8 +1005,8 @@ $( document ).ready(function() {
 								}
 
 			// Replace macro appeareances
-			let re = new RegExp("^(.*(exec|call|fork) )" + escapeName(oldName) + "($| .*$)", "gm");
-			let re2 = new RegExp("^(.*(exec|call|fork) )" + escapeName(oldName) + "($| .*$)", "gm");
+			let re = new RegExp("^((?!#|\/\/).*(exec|call|fork) )" + escapeName(oldName) + "($| .*$)", "gm");
+			let re2 = new RegExp("^((?!#|\/\/).*(exec|call|fork) )" + escapeName(oldName) + "($| .*$)", "gm");
 			for (let i=0; i<jsondata.macros.length; i++)
 				for(j=0; j<jsondata.macros[i].macroActions.length; j++)
 					if (jsondata.macros[i].macroActions[j].macroActionType == "command")
@@ -1013,12 +1029,9 @@ $( document ).ready(function() {
 	function macroCopy() {
 		let macroSourceID=$(".sideselected").attr("data-index");
 		macroName = getMacroName(jsondata.macros[macroSourceID].name);
-		createMacro(macroName);
-
+		
 		// Search new keymap
-		let macroDestID = 0;
-		while (jsondata.macros[macroDestID].name != macroName)
-			macroDestID++;
+		let macroDestID = createMacro(macroName);
 
 		// Copy macros
 		jsondata.macros[macroDestID].macroActions = jsondata.macros[macroSourceID].macroActions.slice();
@@ -1028,11 +1041,9 @@ $( document ).ready(function() {
 				for (let k=0; k<jsondata.keymaps[i].layers[j].modules.length; k++)
 					for (let l=0; l<jsondata.keymaps[i].layers[j].modules[k].keyActions.length; l++)
 						if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l]) //can be null
-							if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l].keyActionType == "playMacro") {
-								let value = jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex;
-								if (value >= macroDestID)
-									jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex = value+1;
-							}
+							if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l].keyActionType == "playMacro")
+								if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex >= macroDestID)
+									jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex++;
 
 		$('.sidenav a:nth-child('+(1+$('#mm').index()+macroDestID+1)+')').trigger('click');
 	}
@@ -1057,18 +1068,17 @@ $( document ).ready(function() {
 								if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l].keyActionType == "playMacro") {
 									let value = jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex;
 									if (value > macroID)
-										jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex = value-1;
+										jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex--;
 									else if (value == macroID)
 										jsondata.keymaps[i].layers[j].modules[k].keyActions[l] = null;
 								}
 
 			// Replace macro appeareances
-			let re = new RegExp("^(.*(exec|call|fork) " + escapeName(macroName) + "($| .*$))", "gm");
+			let re = new RegExp("^((?!#|\/\/).*(exec|call|fork) " + escapeName(macroName) + "($| .*$))", "gm");
 			for (let i=0; i<jsondata.macros.length; i++)
 				for (let j=0; j<jsondata.macros[i].macroActions.length; j++)
 					if (jsondata.macros[i].macroActions[j].macroActionType == "command")
-						if (jsondata.macros[i].macroActions[j].command.search(escapeName(macroName)) > 0)
-							jsondata.macros[i].macroActions[j].command = jsondata.macros[i].macroActions[j].command.replace(re, "#$1");
+						jsondata.macros[i].macroActions[j].command = jsondata.macros[i].macroActions[j].command.replace(re, "#$1");
 	}
 
 	/************************************/
@@ -1168,12 +1178,17 @@ $( document ).ready(function() {
 			}
 		}
 
-		let macro = {isLooped: false, isPrivate: true, name: "$onInit", macroActions: [{macroActionType: "command", command: "set macroEngine.extendedCommands 1"}]};
-		let index = 0
-		while (index < input.macros.length && firstSortedWord(input.macros[index].name, "$onInit")) {
-			index++;
-		}
-		input.macros.splice(index, 0, macro);
+		input.macros.splice(createMacro("$onInit", false), 0, jsondata.macros[0].macroActions.splice(0,0,{macroActionType: "command", command: "set macroEngine.extendedCommands 1"}));
+
+		// Fix keymap calls
+		for (let i=0; i<jsondata.keymaps.length; i++)
+			for (let j=0; j< jsondata.keymaps[i].layers.length; j++)
+				for (let k=0; k<jsondata.keymaps[i].layers[j].modules.length; k++)
+					for (let l=0; l<jsondata.keymaps[i].layers[j].modules[k].keyActions.length; l++)
+						if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l]) // True if keyAction is not null
+							if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l].keyActionType == "playMacro")
+								if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex >= index)
+									jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex++;
 
 		return input;
 	}
@@ -1262,30 +1277,25 @@ $( document ).ready(function() {
 		$("#divMergeMacros .checkbox1:checked").each(function(){
 			let id = $(this).attr("data-id");
 			let name = getMacroName(prefix + mergedata.macros[id].name);
-			createMacro(name, false);
+			
 
 			// Search new macro
-			let finalId = 0;
-			while (jsondata.macros[finalId].name != name)
-				finalId++;
+			let finalId = createMacro(name, false);
 			macroArr.push([id, finalId, mergedata.macros[id].name, name]);
 
 			// Copy macros
 			jsondata.macros[finalId].macroActions = mergedata.macros[id].macroActions.slice();
 
 			// Fix keymap calls
-			for (let i=0; i<jsondata.keymaps.length; i++) {
+			for (let i=0; i<jsondata.keymaps.length; i++)
 				if (!array_find(keymapArr, 2, jsondata.keymaps[i].abbreviation)) // If keymap is not imported
 					for (let j=0; j< jsondata.keymaps[i].layers.length; j++)
 						for (let k=0; k<jsondata.keymaps[i].layers[j].modules.length; k++)
 							for (let l=0; l<jsondata.keymaps[i].layers[j].modules[k].keyActions.length; l++)
 								if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l]) //can be null
-									if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l].keyActionType == "playMacro") {
-										let value = jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex;
-										if (value >= finalId)
-											jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex = value+1;
-									}
-			}
+									if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l].keyActionType == "playMacro")
+										if (jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex >= finalId)
+											jsondata.keymaps[i].layers[j].modules[k].keyActions[l].macroIndex++;
 		});
 
 		// Replace macro appearances in keymaps and macros (only imported ones)
