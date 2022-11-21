@@ -28,11 +28,9 @@ Nevertheless, the main reason to create a fork of my original project is to keep
 	- Delete keymaps. *It will remove any keymap switch from keys and comment macro calls.*
 	- Duplicate keymaps
 	- Create blank keymaps
+	- Add/Remove layers
 
 - Macros
 	- View macros
 	- Rename macros. *It will modify any keymap switch from keys, as well from macros.*
 	- Delete macros. *It will remove any keymap switch from keys and comment macro calls.*
-
-## To do
-- Add/Remove layers

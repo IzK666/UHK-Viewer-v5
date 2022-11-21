@@ -26,6 +26,8 @@ $( document ).ready(function() {
 	$('#macroCopy').click(macroCopy);
 	$('#macroRemove').click(macroRemove);
 	//$('.add-line_btn').click(macro_add_line);
+	
+	$("#layerPlus").click(showLayerSelectorMenu);
 
 	$('.clear').click(keyClear).hover(glowKeySide, noglowKeySide);
 	$('.copy').click(keyCopy).hover(glowKeySide, noglowKeySide);
@@ -45,7 +47,7 @@ $( document ).ready(function() {
 	$('#macName').change(macroRename);
 	$('#macName').on('input', function(){$(this).css("width", Math.ceil($(this).textWidth())+18)});
 
-	$('#macroSave').click(editMacroSave);
+	/*$('#macroSave').click(editMacroSave);
 	$('#macroCancel').click(editMacroCancel);
 	var $dragging = null;
 	$('#divEditor').on("mousedown", "div", function (e) {
@@ -65,7 +67,7 @@ $( document ).ready(function() {
 	});
 	$('#box').children().on("mousedown", function() {event.stopPropagation()});
 	$('.minikb').children().on("mousedown", function() {event.stopPropagation()});
-	$('.minikey').hover(keyHover).mouseleave(keyRelease).click(keyClick);
+	$('.minikey').hover(keyHover).mouseleave(keyRelease).click(keyClick);*/
 
 	function menuselect() {
 		if ($(this).hasClass("sidetitle"))
@@ -123,23 +125,25 @@ $( document ).ready(function() {
 		$('#kmName').css("width", Math.ceil($('#kmName').textWidth())+18);
 		$('#kmAbbr').val(jsondata.keymaps[keymap].abbreviation);
 		$('#kmAbbr').css("width", $('#kmAbbr').textWidth()+10);
+		viewKeymapLayers(keymap);
 		viewKeymap(keymap);
 	}
 
-	function changeLayer() {
-		viewKeymap($(".sideselected").attr("data-index"), $(this).val());
+	function viewKeymapLayers(keymap) {
+		// Show layers enabled
+		$("label.radio[for!='layer0'][for!='layerPlus']").remove();
+		$("input[type=radio]").not("#layer0").not("#layerPlus").remove();
+		for (let i=1; i<jsondata.keymaps[keymap].layers.length; i++) {
+			let radio = "<input type='radio' id='layer" + i + "' name='layer' value='" + i + "' /><label class='radio' for='layer" + i + "'>" + capitalize(jsondata.keymaps[keymap].layers[i].id) + "</label>";
+			$("#layers #layerPlus").before(radio);
+		}
+		$("label.radio[for!='layerPlus']").css("width", (95/($("label.radio").length-1)+"%"));
+		$("input[type='radio']:not(#layerPlus)").off("change");
+		$("input[type='radio']:not(#layerPlus)").change(changeLayer);
 	}
 
 	function viewKeymap(keymap, layer=0) {
-		// Show layers enabled
-		$("label.radio[for!='layer0']").remove();
-		$("input[type=radio]").not("#layer0").remove();
-		for (let i=1; i<jsondata.keymaps[keymap].layers.length; i++) {
-			let val = jsondata.keymaps[keymap].layers[i].id[0].toUpperCase();
-			val += jsondata.keymaps[keymap].layers[i].id.slice(1)
-			let radio = "<input type='radio' id='layer" + i + "' name='layer' value='" + i + "' checked /><label class='radio' for='layer" + i + "'>" + val + "</label>";
-			$("#layers").append(radio);
-		}
+		hideLayerSelectorMenu();
 
 		// Fill keyboard with the correct keymap and layer
 		for (let i=0; i<35; i++) {
@@ -199,9 +203,7 @@ $( document ).ready(function() {
 				else
 					$('#lKey'+i).text("?");
 		}
-		$("label.radio").width(Math.floor(99.5/$("label.radio").length)+"%");
-		$("input[type='radio'").off("change");
-		$("input[type='radio'").change(changeLayer);
+		
 		$("#layer" + layer).prop("checked", true);
 	}
 
@@ -235,6 +237,76 @@ $( document ).ready(function() {
 		$('#clipleftK, #clipleftL, #cliprightK, #cliprightL').removeClass("blink");
 	}
 
+	function changeLayer() {
+		// show another layer
+		viewKeymap($(".sideselected").attr("data-index"), $(this).val());
+	}
+
+	function showLayerSelectorMenu() {
+		// Show layer selector for adding and removing layers
+		if ($("#layerSelector").length > 0)
+			return;
+
+		let div = "<div id='layerSelector' class='layerManager'>";
+		for (let i=1; i<layers.length; i++) {
+			div += "<input type='checkbox' class='layerManager' name='" + layers[i] + "' id='" + layers[i] + "' value='" + layers[i] + "'><label class='layerManager' for='" + layers[i] + "'>" + capitalize(layers[i]) + "</label><br>";
+		}
+		div += "<br><input type='button' id='layerModify' value='Modify' class='button'>";
+		div += "</div>";
+
+		$("#divKeymap").append(div);
+		for (let i=1; i<jsondata.keymaps[$(".sideselected").attr("data-index")].layers.length; i++)
+			$("input[name='" + jsondata.keymaps[$(".sideselected").attr("data-index")].layers[i].id + "'").prop("checked", true);
+		$('#layerSelector').css("position", "absolute");
+		$('#layerSelector').css("top", $(".radioPlus").position().top + parseInt($(".radioPlus").css("height"))/4);
+		$('#layerSelector').css("left", $(".radioPlus").position().left + parseInt($(".radioPlus").css("height"))/4);
+		$("body").click(function (e){if (e.target.className != "layerManager" && e.target.className != "radio radioPlus") {hideLayerSelectorMenu();}});
+		$("#layerModify").click(layerModify);
+	}
+
+	function hideLayerSelectorMenu() {
+		$("#layerSelector").fadeOut(300, function(){$(this).remove()});
+		$("body").off("click");
+		$("#layerModify").off();
+	}
+
+	function layerModify() {
+		// Add and remove layers according to your selection
+		let currentKeymap = $(".sideselected").attr("data-index");
+		let currentLayer = jsondata.keymaps[currentKeymap].layers[$("input[name='layer']:checked").val()].id;
+		let kmax = jsondata.keymaps[currentKeymap].layers.length;
+		let k = 1;
+		let showBase = false;
+		for (let i=1; i<layers.length; i++) {
+			if (k<kmax && jsondata.keymaps[currentKeymap].layers[k].id == layers[i]) {
+				if (!$("#" + layers[i]).prop("checked")) {
+					// Layer deselected
+					jsondata.keymaps[currentKeymap].layers.splice(k, 1);
+					if (currentLayer == layers[i]) showBase = true;
+					kmax--;
+				} else {
+					k++;
+				}
+			} else {
+				if ($("#" + layers[i]).prop("checked")) {
+					// Add new layer
+					jsondata.keymaps[currentKeymap].layers.splice(k, 0, createBlankLayer(layers[i]));
+					k++;kmax++;
+				}
+			}
+		}
+		viewKeymapLayers(currentKeymap);
+		hideLayerSelectorMenu();
+		if (showBase)
+			viewKeymap(currentKeymap);
+		else if (currentLayer != "base")
+			for (let i=1; i<jsondata.keymaps[currentKeymap].layers.length; i++)
+				if (jsondata.keymaps[currentKeymap].layers[i].id == currentLayer) {
+					$("#layer" + i).prop("checked", true);i=99999;
+				}
+	}
+
+
 	/************************************/
 
 
@@ -254,18 +326,7 @@ $( document ).ready(function() {
 
 	function createKeymap(aname, abbr, glow=true) {
 		// Create a new blank keymap with base layer
-		let layer = [{id: "base", modules: [{id: 0, keyActions: []}, {id: 1, keyActions: []}, {id: 2, keyActions: []}, {id: 4, keyActions: []}]}];
-		for (let i=0; i<layer.length; i++)
-			for (let j=0; j<2; j++)
-				for (let k=0; k<35; k++)
-					layer[i].modules[j].keyActions.push(null);
-		for (let i=0; i<layer.length; i++) {
-			for (let k=0; k<6; k++)
-					layer[i].modules[2].keyActions.push(null);
-			for (let k=0; k<2; k++)
-					layer[i].modules[3].keyActions.push(null);
-		}
-		let keymap = {isDefault: false, abbreviation: abbr, name: aname, description: "Blank keymap created with UHK Tools", layers: layer};
+		let keymap = {isDefault: false, abbreviation: abbr, name: aname, description: "Blank keymap created with UHK Tools", layers: [createBlankLayer("base")]};
 		let index = 0;
 
 		// Search position for the new keymap
@@ -276,6 +337,21 @@ $( document ).ready(function() {
 		loadKeymaps();
 		if (glow)
 			$('.sidenav a:nth-child('+(1+$('#mk').index()+index+1)+')').addClass("glow");
+	}
+
+	function createBlankLayer(name) {
+		let layer = {id: name, modules: [{id: 0, keyActions: []}, {id: 1, keyActions: []}, {id: 2, keyActions: []}, {id: 4, keyActions: []}]};
+		for (let i=0; i<layer.length; i++)
+			for (let j=0; j<2; j++)
+				for (let k=0; k<35; k++)
+					layer[i].modules[j].keyActions.push(null);
+		for (let i=0; i<layer.length; i++) {
+			for (let k=0; k<6; k++)
+					layer[i].modules[2].keyActions.push(null);
+			for (let k=0; k<2; k++)
+					layer[i].modules[3].keyActions.push(null);
+		}
+		return layer;
 	}
 
 	function createName(name) {
@@ -406,7 +482,6 @@ $( document ).ready(function() {
 		// Copy layers
 		for (let i=0; i<jsondata.keymaps[keymapSourceId].layers.length; i++) {
 			if (i != 0) addLayer2Keymap(keymapDestId, jsondata.keymaps[keymapSourceId].layers[i].id);
-			jsondata.keymaps[keymapDestId].layers[i].id = jsondata.keymaps[keymapSourceId].layers[i].id
 			layerCopy(keymapSourceId, i, 2, keymapDestId, i);
 		}
 
@@ -463,23 +538,11 @@ $( document ).ready(function() {
 
 
 	function addLayer2Keymap(keymap, newlayer) {
-		let layer = {id: newlayer, modules: [{id: 0, keyActions: []}, {id: 1, keyActions: []}, {id: 2, keyActions: []}, {id: 4, keyActions: []}]};
-		for (let i=0; i<layer.length; i++)
-			for (let j=0; j<2; j++)
-				for (let k=0; k<35; k++)
-					layer[i].modules[j].keyActions.push(null);
-		for (let i=0; i<layer.length; i++) {
-			for (let k=0; k<6; k++)
-					layer[i].modules[2].keyActions.push(null);
-			for (let k=0; k<2; k++)
-					layer[i].modules[3].keyActions.push(null);
-		}
-
 		let layerid = getLayerId(newlayer);
 		let i = 0;
 		while ((i < jsondata.keymaps[keymap].layers.length) && (getLayerId(jsondata.keymaps[keymap].layers[i].id) < layerid))
 			i++;
-		jsondata.keymaps[keymap].layers.splice(i, 0, layer);
+		jsondata.keymaps[keymap].layers.splice(i, 0, createBlankLayer(newlayer));
 	}
 
 	function getLayerId(layername) {
@@ -551,8 +614,10 @@ $( document ).ready(function() {
 		if (side != 0) {
 			jsondata.keymaps[destKeymap].layers[destLayer].modules[1].id = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[1].id;
 			jsondata.keymaps[destKeymap].layers[destLayer].modules[1].keyActions = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[1].keyActions.slice();
-			jsondata.keymaps[destKeymap].layers[destLayer].modules[2].id = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[2].id;
-			jsondata.keymaps[destKeymap].layers[destLayer].modules[2].keyActions = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[2].keyActions.slice();
+			if (jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules.length > 2) {
+				jsondata.keymaps[destKeymap].layers[destLayer].modules[2].id = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[2].id;
+				jsondata.keymaps[destKeymap].layers[destLayer].modules[2].keyActions = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[2].keyActions.slice();
+			}
 		}
 	}
 

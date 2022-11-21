@@ -265,9 +265,17 @@ label.button {
 }
 
 .layer {
-	width:							75%;
-	margin-left:					25%;
+	width:							80%;
+	margin-left:					20%;
 	margin-top:						50px;
+}
+
+.radio {
+	width:							95%;
+}
+
+.radioPlus {
+	width:							5%;
 }
 
 .form .layer input {
@@ -282,7 +290,6 @@ label.button {
 	text-align:						center;
 	height:							40px;
 	line-height:					38px;
-	width:							100%;
 	display:						block;
 	cursor:							pointer;
 	border:							1px solid #666;
@@ -297,20 +304,24 @@ label.button {
 	color:							#FFF;
 }
 
-/*.form .layer input:checked + label {
-	border:							1px solid #333;
-	background-color:				#47f;
-	color:							#fff;
-	opacity:						0.75;
-} */
-
-#layers input:checked + label {
+#layers input:checked + label:not(.radioPlus) {
 	border:							1px solid #333;
 	background-color:				#47f;
 	color:							#fff;
 	opacity:						0.75;
 }
 
+#layerSelector {
+	border:							1px solid black;
+	border-radius:					5px;
+	background-color:				white;
+	line-height:					2em;
+	padding:						5 15px;
+}
+
+input[type="checkbox"] {
+	margin:							10 20 10 10px;
+}
 
 /* ******************** */
 /*	Keyboard Title/Note	*/

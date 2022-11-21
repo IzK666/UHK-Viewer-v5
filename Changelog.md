@@ -8,3 +8,6 @@
 ### v0.5
 - Implemented many of the old UHK-Viewer functions.
 - Many old macro options aren't available. Only view, rename and delete.
+
+### v0.6
+- Added creation and removal of additional layers
