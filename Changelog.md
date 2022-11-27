@@ -15,3 +15,6 @@
 ### v0.65
 - Bug: Format convertion: Macros on keymap assignements wheren't updated after macro $onInit is added, making all key assignments to call for the wrong macro
 - When a layer is removed, macro calls for that specific layer are commented. It doesn't apply to holdLayer (for example), as it doesn't specify the keymap.
+
+### v0.7
+- Bug fixes

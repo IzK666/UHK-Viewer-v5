@@ -1178,7 +1178,9 @@ $( document ).ready(function() {
 			}
 		}
 
-		input.macros.splice(createMacro("$onInit", false), 0, jsondata.macros[0].macroActions.splice(0,0,{macroActionType: "command", command: "set macroEngine.extendedCommands 1"}));
+		//input.macros.splice(createMacro("$onInit", false), 0, jsondata.macros[0].macroActions.splice(0,0,{macroActionType: "command", command: "set macroEngine.extendedCommands 1"}));
+		let index = createMacro("$onInit", false);
+		jsondata.macros[index].macroActions.splice(0,0,{macroActionType: "command", command: "set macroEngine.extendedCommands 1"});
 
 		// Fix keymap calls
 		for (let i=0; i<jsondata.keymaps.length; i++)
