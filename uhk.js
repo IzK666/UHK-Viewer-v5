@@ -620,11 +620,11 @@ $( document ).ready(function() {
 	function layerCopy(sourceKeymap, sourceLayer, side, destKeymap, destLayer) {
 		if (side != 1) {
 			jsondata.keymaps[destKeymap].layers[destLayer].modules[0].id = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[0].id;
-			jsondata.keymaps[destKeymap].layers[destLayer].modules[0].keyActions = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[0].keyActions.slice();
+			jsondata.keymaps[destKeymap].layers[destLayer].modules[0].keyActions = JSON.parse(JSON.stringify(jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[0].keyActions));
 			if (jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[3]) {
 				if (jsondata.keymaps[destKeymap].layers[destLayer].modules[3]) {
 					jsondata.keymaps[destKeymap].layers[destLayer].modules[3].id = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[3].id;
-					jsondata.keymaps[destKeymap].layers[destLayer].modules[3].keyActions = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[3].keyActions.slice();
+					jsondata.keymaps[destKeymap].layers[destLayer].modules[3].keyActions = JSON.parse(JSON.stringify(jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[3].keyActions));
 				} else {
 					jsondata.keymaps[destKeymap].layers[destLayer].modules.push(jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[3]);
 				}
@@ -632,10 +632,10 @@ $( document ).ready(function() {
 		}
 		if (side != 0) {
 			jsondata.keymaps[destKeymap].layers[destLayer].modules[1].id = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[1].id;
-			jsondata.keymaps[destKeymap].layers[destLayer].modules[1].keyActions = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[1].keyActions.slice();
+			jsondata.keymaps[destKeymap].layers[destLayer].modules[1].keyActions = JSON.parse(JSON.stringify(jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[1].keyActions));
 			if (jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules.length > 2) {
 				jsondata.keymaps[destKeymap].layers[destLayer].modules[2].id = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[2].id;
-				jsondata.keymaps[destKeymap].layers[destLayer].modules[2].keyActions = jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[2].keyActions.slice();
+				jsondata.keymaps[destKeymap].layers[destLayer].modules[2].keyActions = JSON.parse(JSON.stringify(jsondata.keymaps[sourceKeymap].layers[sourceLayer].modules[2].keyActions));
 			}
 		}
 	}

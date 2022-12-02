@@ -18,3 +18,6 @@
 
 ### v0.7
 - Bug fixes
+
+### v0.71
+- Fixed bug. Odd/undesired behaviour when a layer side was copy-pasted.
